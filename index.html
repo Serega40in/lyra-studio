@@ -4,24 +4,125 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LYRA — студия видео</title>
-<meta name="description" content="Статическая студия AI-видео: клипы, аватар, канал."/>
 <meta name="theme-color" content="#0c0d0f"/>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="styles.css"/>
+<style>
+:root{--bg:#0c0d0f;--surface:#141618;--elev:#1c1f24;--fg:#f4f1ea;--muted:#a39e95;--subtle:#7a756e;--line:#2c2e33;--r:8px;--p:20px;--fd:Literata,Georgia,serif;--fb:Manrope,system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);font-family:var(--fb);line-height:1.5}
+h1,h2{font-family:var(--fd);font-weight:500}button{cursor:pointer;font-family:inherit;border:0}
+.wrap{max-width:56rem;margin:0 auto;padding:0 1rem}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+header .in{height:3.75rem;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--fd);font-size:1.4rem}.logo span{font-family:var(--fb);font-size:.75rem;color:var(--subtle);margin-left:.6rem}
+nav{display:flex;gap:.35rem;flex-wrap:wrap;margin:1.25rem 0}
+nav button{height:2.5rem;padding:0 .9rem;border-radius:var(--r);background:transparent;color:var(--muted);font-size:.875rem}
+nav button.on{background:var(--elev);color:var(--fg)}
+.ban{border:1px solid var(--line);border-radius:var(--p);padding:.8rem 1rem;background:var(--elev);color:var(--muted);font-size:.8rem;margin-bottom:1.25rem}
+.panel{border:1px solid var(--line);border-radius:var(--p);padding:1rem;background:var(--surface);margin-bottom:1rem}
+label{display:block;font-size:.85rem;font-weight:500;margin:.75rem 0 .35rem}
+input,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);color:var(--fg);padding:.65rem .75rem;font:inherit;font-size:.875rem}
+textarea{min-height:5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.chip{height:2.4rem;padding:0 .75rem;border-radius:var(--r);border:1px solid var(--line);background:0;color:var(--muted);font-size:.8rem}
+.chip.on{background:var(--fg);color:var(--bg)}
+.btn{height:2.6rem;padding:0 1rem;border-radius:var(--r);font-size:.875rem;font-weight:500;background:var(--fg);color:var(--bg);margin-right:.4rem;margin-top:.5rem}
+.btn.g{background:0;color:var(--fg);border:1px solid var(--line)}
+.mon{aspect-ratio:16/9;border:1px solid var(--line);border-radius:var(--p);background:radial-gradient(ellipse at 30% 20%,#1a1c20,transparent 55%),var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+.mon img{width:100%;height:100%;object-fit:cover}
+.m{color:var(--muted)}.s{color:var(--subtle)}.sm{font-size:.875rem}.xs{font-size:.75rem}.hid{display:none!important}
+.grid{display:grid;gap:1.25rem}@media(min-width:800px){.grid{grid-template-columns:1fr 1fr}}
+.st{display:flex;gap:.9rem;border:1px solid var(--line);border-radius:var(--p);padding:.9rem;margin-bottom:.75rem}
+.ph{width:5.5rem;height:7rem;border-radius:var(--r);flex-shrink:0}
+.meter{display:grid;grid-template-columns:5.5rem 1fr 2rem;gap:.5rem;align-items:center;font-size:.8rem;margin:.35rem 0}
+.meter .b{height:4px;background:var(--elev);border-radius:99px;overflow:hidden}.meter .f{height:100%;background:var(--fg)}
+</style>
 </head>
 <body>
-<header><div class="wrap in"><div class="logo">LYRA<span>студия видео</span></div><p class="xs m" id="hm">без аватара</p></div></header>
-<div class="wrap layout">
-<nav class="side" id="ns"></nav>
-<main>
-<div class="ban">Статическая демо-версия на GitHub Pages. Интерфейс и прогресс аватара работают в браузере. Реальная генерация клипов (xAI) здесь имитируется.</div>
-<section id="v-stage"></section>
-<section id="v-avatar" class="hid"></section>
-<section id="v-archive" class="hid"></section>
-<section id="v-channel" class="hid"></section>
-</main>
+<header><div class="wrap in"><div class="logo">LYRA<span>студия видео</span></div><span class="xs m" id="hm">без аватара</span></div></header>
+<div class="wrap" style="padding:1.25rem 1rem 3rem">
+<div class="ban">Статическая демо-версия на GitHub Pages. Съёмка имитируется в браузере; реальная генерация xAI нужна на сервере.</div>
+<nav id="nav"></nav>
+<div id="stage">
+<div class="grid">
+<div>
+<h1 style="font-size:1.6rem;margin:0">Сцена</h1>
+<p class="sm m">Клип по треку, промпту, танцу, подкасту или влогу.</p>
+<div class="chips" id="modes"></div>
+<label>Название / сцена</label>
+<textarea id="pr" placeholder="Ночной клуб, один прожектор…"></textarea>
+<label>Ссылка на Suno (референс)</label>
+<input id="su" placeholder="https://suno.com/song/…"/>
+<label>Реплика</label>
+<input id="ln" placeholder="Короткая фраза"/>
+<div class="chips" id="modes2"></div>
+<button class="btn" id="bs">Снять клип</button>
+<button class="btn g" id="bk">Только кадр</button>
+<p class="xs s" id="msg"></p>
 </div>
-<nav class="bot" id="nb"></nav>
-<script src="app.js"></script>
+<div><div class="mon" id="mon"><span class="m sm">Монитор пуст</span></div></div>
+</div>
+</div>
+<div id="avatar" class="hid">
+<h1 style="font-size:1.6rem;margin:0">Аватар</h1>
+<p class="sm m">Возьмите резидента или загрузите фото. Опыт растёт с клипами.</p>
+<div id="ae">
+<div class="st"><div class="ph" style="background:linear-gradient(145deg,#3a3c42,#121316)"></div><div><h2 style="margin:0;font-size:1.1rem">Мира Волкова</h2><p class="xs s">Певец</p><button class="btn" data-a="mira">Взять</button></div></div>
+<div class="st"><div class="ph" style="background:linear-gradient(160deg,#1e2228,#0e1012)"></div><div><h2 style="margin:0;font-size:1.1rem">Лео Парк</h2><p class="xs s">Танцор</p><button class="btn" data-a="leo">Взять</button></div></div>
+</div>
+<div id="aa" class="hid panel">
+<div id="ap" class="ph" style="width:8rem;height:10rem;margin-bottom:.75rem"></div>
+<p class="xs s" id="ar"></p>
+<label>Имя</label><input id="an"/>
+<label>Био</label><textarea id="ab"></textarea>
+<label>Фото</label><input type="file" accept="image/*" id="au"/>
+<div id="sm" style="margin-top:.75rem"></div>
+<p class="xs m" id="lg"></p>
+</div>
+</div>
+<div id="archive" class="hid">
+<h1 style="font-size:1.6rem;margin:0">Архив</h1>
+<p class="sm m" id="aze">Пока пусто.</p>
+<div id="azl"></div>
+</div>
+<div id="channel" class="hid">
+<h1 style="font-size:1.6rem;margin:0">Канал</h1>
+<p class="sm m" id="ce">Сначала соберите аватар.</p>
+<div id="cb" class="hid">
+<p id="cn" style="font-family:var(--fd);font-size:1.75rem;margin:.5rem 0"></p>
+<p class="sm m" id="ch"></p>
+<p class="sm" id="cbi"></p>
+<p class="xs s" id="ck"></p>
+</div>
+</div>
+</div>
+<script>
+const NAV=[["stage","Сцена"],["avatar","Аватар"],["archive","Архив"],["channel","Канал"]];
+const MODES=[["track","По треку"],["prompt","Промпт"],["dance","Танец"],["podcast","Подкаст"],["vlog","Влог"]];
+const SK={voice:"Голос",dance:"Танец",presence:"Присутствие",story:"История"};
+const ST={mira:{name:"Мира Волкова",role:"singer",bio:"Поёт коротко и близко.",skills:{voice:12,dance:4,presence:10,story:6},color:"linear-gradient(145deg,#3a3c42,#121316)"},leo:{name:"Лео Парк",role:"dancer",bio:"Танцует на месте.",skills:{voice:4,dance:14,presence:9,story:3},color:"linear-gradient(160deg,#1e2228,#0e1012)"}};
+const R=["Стажёр","Резидент","Соло","Хедлайнер","Лицо канала","Икона"];
+let S=JSON.parse(localStorage.getItem("lyra-p")||"null")||{tab:"stage",mode:"track",avatar:null,projects:[],still:null};
+function save(){localStorage.setItem("lyra-p",JSON.stringify(S))}
+function lvl(xp){let l=1,n=80,r=Math.max(0,xp||0);while(r>=n&&l<20){r-=n;l++;n=Math.round(n*1.3)}return{l,r,n,rank:R[Math.min(l-1,R.length-1)]}}
+function frame(t){const c=document.createElement("canvas");c.width=960;c.height=540;const x=c.getContext("2d");const g=x.createLinearGradient(0,0,960,540);g.addColorStop(0,"#141618");g.addColorStop(1,"#0c0d0f");x.fillStyle=g;x.fillRect(0,0,960,540);x.fillStyle="rgba(244,241,234,.1)";x.beginPath();x.ellipse(340,240,160,180,0,0,Math.PI*2);x.fill();x.fillStyle="#f4f1ea";x.font="500 28px Literata,Georgia,serif";x.fillText("LYRA",36,48);x.fillStyle="#a39e95";x.font="400 16px Manrope,sans-serif";x.fillText((t||"Демо-кадр").slice(0,40),36,500);return c.toDataURL("image/jpeg",.85)}
+function render(){
+ nav.innerHTML=NAV.map(([id,l])=>`<button class="${S.tab===id?"on":""}" data-t="${id}">${l}</button>`).join("");
+ document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;save();render()});
+ ["stage","avatar","archive","channel"].forEach(id=>document.getElementById(id).classList.toggle("hid",S.tab!==id));
+ modes.innerHTML=MODES.map(([id,l])=>`<button class="chip ${S.mode===id?"on":""}" data-m="${id}">${l}</button>`).join("");
+ document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;render()});
+ const a=S.avatar;const p=lvl(a&&a.xp);hm.textContent=a?`${a.name} · ур. ${p.l}`:"без аватара";
+ if(S.still)mon.innerHTML=`<img src="${S.still}" alt=""/>`;else mon.innerHTML=`<span class="m sm">Монитор пуст</span>`;
+ if(a){ae.classList.add("hid");aa.classList.remove("hid");ap.style.background=a.portrait?`url(${a.portrait}) center/cover`:a.color;ar.textContent=`${p.rank} · ур. ${p.l}`;an.value=a.name;ab.value=a.bio||"";sm.innerHTML=Object.keys(SK).map(k=>`<div class="meter"><span class="m">${SK[k]}</span><div class="b"><div class="f" style="width:${a.skills[k]}%"></div></div><span class="s">${a.skills[k]}</span></div>`).join("")}else{ae.classList.remove("hid");aa.classList.add("hid")}
+ if(S.projects.length){aze.textContent="";azl.innerHTML=S.projects.map(p=>`<div class="panel"><strong>${p.title}</strong><p class="xs s">${p.mode}</p>${p.still?`<img src="${p.still}" style="width:100%;border-radius:8px;margin-top:.5rem" alt=""/>`:""}</div>`).join("")}else{aze.textContent="Пока пусто.";azl.innerHTML=""}
+ if(a){ce.classList.add("hid");cb.classList.remove("hid");cn.textContent=a.name;ch.textContent="@"+(a.handle||"talent");cbi.textContent=a.bio||"";ck.textContent=`${p.rank} · роликов: ${S.projects.filter(x=>x.avatarId===a.id).length}`}else{ce.classList.remove("hid");cb.classList.add("hid")}
+}
+document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{const s=ST[b.dataset.a];S.avatar={id:crypto.randomUUID(),name:s.name,handle:b.dataset.a,bio:s.bio,skills:{...s.skills},xp:0,color:s.color,portrait:null};S.tab="avatar";save();render()});
+an.oninput=()=>{if(S.avatar){S.avatar.name=an.value;save();render()}};ab.oninput=()=>{if(S.avatar){S.avatar.bio=ab.value;save()}};
+au.onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f||!S.avatar)return;const r=new FileReader();r.onload=()=>{S.avatar.portrait=r.result;save();render()};r.readAsDataURL(f)};
+bs.onclick=async()=>{const t=pr.value.trim()||ln.value.trim();if(!t){msg.textContent="Опишите сцену или реплику.";return}msg.textContent="Рендер…";bs.disabled=true;await new Promise(r=>setTimeout(r,1200));S.still=frame(t);const proj={id:crypto.randomUUID(),avatarId:S.avatar&&S.avatar.id,title:t.slice(0,40),mode:S.mode,still:S.still};S.projects=[proj,...S.projects].slice(0,12);if(S.avatar){const g={track:{xp:40,voice:6},dance:{xp:36,dance:7},podcast:{xp:32,story:5},vlog:{xp:34,presence:6},prompt:{xp:28,story:4}}[S.mode]||{xp:28};S.avatar.xp=(S.avatar.xp||0)+g.xp;Object.keys(g).forEach(k=>{if(k!=="xp"&&S.avatar.skills[k]!=null)S.avatar.skills[k]=Math.min(100,S.avatar.skills[k]+g[k])});lg.textContent="Опыт +"+g.xp}bs.disabled=false;msg.textContent="Готово — кадр в архиве.";save();render()};
+bk.onclick=async()=>{msg.textContent="Собираем кадр…";await new Promise(r=>setTimeout(r,700));S.still=frame(pr.value||"Кадр");msg.textContent="Кадр готов.";save();render()};
+render();
+</script>
 </body>
 </html>
